@@ -46,6 +46,9 @@ export type {
 // ─── Utilities (available from Phase 1) ──────────────────────────────────────
 export { toToastId } from './types/index';
 export { ObservableStore } from './core/Store';
+export { getEngineRegistry, isBrowser } from './core/Bootstrap';
+export type { GlobalEngineRegistry } from './core/Bootstrap';
+export { toast } from './core/Engine';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 export { CORE_VERSION } from './types/index';

@@ -72,4 +72,21 @@ export const REACT_PACKAGE_VERSION = '0.1.0' as const;
  * toast.dismissAll();
  * ```
  */
-// export { toast } from './core/Engine';
+// ─── Re-export toast dispatcher API ──────────────────────────────────────────
+export { toast } from '@react-lite-toast/core';
+
+// ─── Renderer Management (Phase 4) ───────────────────────────────────────────
+export { Renderer } from './core/Renderer';
+import { bootstrap, unmount } from './core/Mount';
+export { bootstrap, unmount };
+
+// ─── Zero-Config Auto-Registration ───────────────────────────────────────────
+import { getEngineRegistry, isBrowser } from '@react-lite-toast/core';
+
+if (isBrowser()) {
+  const registry = getEngineRegistry();
+  if (!registry.bootstrap) {
+    registry.bootstrap = bootstrap;
+  }
+}
+

@@ -32,5 +32,6 @@
     "**/node_modules": true,
     "**/pnpm-lock.yaml": true
   },
-  "vitest.commandLine": "pnpm vitest"
+  "vitest.commandLine": "pnpm vitest",
+  "git.ignoreLimitWarning": true
 }
