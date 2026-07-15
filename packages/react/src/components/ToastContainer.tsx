@@ -1,18 +1,50 @@
-import { useSyncExternalStore } from 'react';
+import { useSyncExternalStore, useState, useEffect } from 'react';
 import type { ReactElement } from 'react';
-import { getEngineRegistry } from '@react-lite-toast/core';
+import { createPortal } from 'react-dom';
+import { getEngineRegistry, PORTAL_ROOT_ID } from '@react-lite-toast/core';
+import type {
+  ToastPosition,
+  ToastTheme,
+  ToastAnimation,
+  ToastStackOrder,
+} from '@react-lite-toast/core';
+
+export interface ToastContainerProps {
+  id?: string;
+  position?: ToastPosition;
+  limit?: number | false;
+  theme?: ToastTheme;
+  animation?: ToastAnimation;
+  stackOrder?: ToastStackOrder;
+  className?: string;
+  zIndex?: number;
+}
 
 /**
- * ToastContainer (Stub / Core Binding)
+ * ToastContainer (React Renderer & Portal)
  *
- * This is the central component of react-lite-toast. It is automatically mounted
- * inside the portal root. It subscribes to the ObservableStore and renders active toasts.
+ * This is the central rendering component of react-lite-toast. It can be:
+ * 1. Auto-bootstrapped (provider-less mounting via Renderer.bootstrap()).
+ * 2. Manually mounted in the React tree (allowing context inheritance).
  *
- * In Phase 8 (Components), this component will be fully implemented with viewport
- * positioning, transitions, and accessibility features.
+ * It subscribes to the store, registers container options dynamically,
+ * and portals the visual elements to document.body for layout isolation.
  */
-export function ToastContainer(): ReactElement | null {
+export function ToastContainer({
+  id = 'default',
+  position,
+  limit,
+  theme,
+  animation,
+  stackOrder,
+  className,
+  zIndex,
+}: ToastContainerProps = {}): ReactElement | null {
   const { store } = getEngineRegistry();
+
+  // SSR hydration safety state
+  const [mounted, setMounted] = useState(false);
+  const [containerEl, setContainerEl] = useState<HTMLElement | null>(null);
 
   // Subscribe to the store. Only rerenders when the store state changes.
   const state = useSyncExternalStore(
@@ -25,18 +57,67 @@ export function ToastContainer(): ReactElement | null {
     store.getState,
   );
 
-  const activeToasts = Array.from(state.toasts.values());
+  useEffect(() => {
+    setMounted(true);
 
-  if (activeToasts.length === 0 && !state.bootstrapped) {
+    // Find or create portal target element in the DOM
+    const targetId = id === 'default' ? PORTAL_ROOT_ID : `react-lite-toast-container-${id}`;
+    let el = document.getElementById(targetId);
+    if (!el) {
+      el = document.createElement('div');
+      el.id = targetId;
+      document.body.appendChild(el);
+    }
+    setContainerEl(el);
+
+    // Dynamic container registration with the core store
+    const payload = {
+      id,
+      ...(position !== undefined ? { position } : {}),
+      ...(limit !== undefined ? { limit } : {}),
+      ...(theme !== undefined ? { theme } : {}),
+      ...(animation !== undefined ? { animation } : {}),
+      ...(stackOrder !== undefined ? { stackOrder } : {}),
+      ...(className !== undefined ? { className } : {}),
+      ...(zIndex !== undefined ? { zIndex } : {}),
+    };
+
+    store.dispatch({
+      type: 'CONTAINER_ADD',
+      payload,
+    });
+
+    return () => {
+      store.dispatch({
+        type: 'CONTAINER_REMOVE',
+        payload: { id },
+      });
+      // Clean up DOM node on manual container unmount (unless it is the main portal root)
+      if (id !== 'default') {
+        const domNode = document.getElementById(targetId);
+        if (domNode) {
+          domNode.remove();
+        }
+      }
+    };
+  }, [store, id, position, limit, theme, animation, stackOrder, className, zIndex]);
+
+  // Prevent SSR hydration mismatch warning by rendering nothing on server
+  if (!mounted || !containerEl) {
     return null;
   }
 
-  return (
+  // Filter to only render toasts owned by this container instance
+  const activeToasts = Array.from(state.toasts.values()).filter(
+    (toast) => toast.containerId === id && toast.state !== 'REMOVED',
+  );
+
+  const content = (
     <div
-      id="react-lite-toast-container-root"
+      className={className}
       style={{
         position: 'fixed',
-        zIndex: 9999,
+        zIndex: zIndex ?? 9999,
         pointerEvents: 'none',
         inset: 0,
       }}
@@ -60,5 +141,8 @@ export function ToastContainer(): ReactElement | null {
       ))}
     </div>
   );
+
+  return createPortal(content, containerEl);
 }
+
 export default ToastContainer;

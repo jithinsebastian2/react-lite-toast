@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { getEngineRegistry, PORTAL_ROOT_ID, toToastId } from '@react-lite-toast/core';
 import { bootstrap, unmount } from './Mount';
 import { Renderer } from './Renderer';
@@ -110,5 +110,71 @@ describe('React Bootstrap & Mount', () => {
     const toastElement = document.getElementById('toast-test-toast-1');
     expect(toastElement).not.toBeNull();
     expect(toastElement?.textContent).toBe('Hello, testing mount!');
+  });
+
+  it('should return false in unmount() on SSR server environment', () => {
+    const originalWindow = globalThis.window;
+    const originalDocument = globalThis.document;
+
+    // Simulate server side
+    delete (globalThis as any).window;
+    delete (globalThis as any).document;
+
+    const success = unmount();
+    expect(success).toBe(false);
+
+    // Restore original globals
+    (globalThis as any).window = originalWindow;
+    (globalThis as any).document = originalDocument;
+  });
+
+  it('should catch error and return false if createRoot throws in bootstrap()', () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    
+    // We mock document.getElementById to throw to force an error in bootstrap
+    const originalGetElement = document.getElementById;
+    document.getElementById = () => {
+      throw new Error('mock getElement error');
+    };
+
+    const success = bootstrap();
+    expect(success).toBe(false);
+
+    // Restore
+    document.getElementById = originalGetElement;
+    consoleSpy.mockRestore();
+  });
+
+  it('should catch error and return false if root.unmount throws in unmount()', () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    const registry = getEngineRegistry();
+    registry.mounted = true;
+    registry.root = {
+      unmount: () => {
+        throw new Error('mock unmount error');
+      },
+    } as any;
+
+    const success = unmount();
+    expect(success).toBe(false);
+
+    consoleSpy.mockRestore();
+  });
+
+  it('should return false in bootstrap() on SSR server environment', () => {
+    const originalWindow = globalThis.window;
+    const originalDocument = globalThis.document;
+
+    // Simulate server side
+    delete (globalThis as any).window;
+    delete (globalThis as any).document;
+
+    const success = bootstrap();
+    expect(success).toBe(false);
+
+    // Restore original globals
+    (globalThis as any).window = originalWindow;
+    (globalThis as any).document = originalDocument;
   });
 });
