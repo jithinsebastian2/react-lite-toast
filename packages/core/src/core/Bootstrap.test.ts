@@ -27,4 +27,28 @@ describe('Bootstrap core', () => {
     // Core package uses Node environment in vitest.config.ts
     expect(isBrowser()).toBe(false);
   });
+
+  it('should detect env as browser when window/document are defined', () => {
+    const originalWindow = globalThis.window;
+    const originalDocument = globalThis.document;
+
+    // Mock global window and document
+    (globalThis as any).window = {} as any;
+    (globalThis as any).document = {} as any;
+
+    expect(isBrowser()).toBe(true);
+
+    // Restore original globals
+    if (originalWindow === undefined) {
+      delete (globalThis as any).window;
+    } else {
+      (globalThis as any).window = originalWindow;
+    }
+
+    if (originalDocument === undefined) {
+      delete (globalThis as any).document;
+    } else {
+      (globalThis as any).document = originalDocument;
+    }
+  });
 });

@@ -208,9 +208,14 @@ export class ObservableStore {
         const newToasts = new Map(this.state.toasts);
         const existing = newToasts.get(action.payload.id);
         if (existing) {
+          const visibleAt =
+            action.payload.state === 'VISIBLE' && existing.visibleAt === null
+              ? Date.now()
+              : existing.visibleAt;
           newToasts.set(action.payload.id, {
             ...existing,
             state: action.payload.state,
+            visibleAt,
           });
           this.setState({ toasts: newToasts });
         }

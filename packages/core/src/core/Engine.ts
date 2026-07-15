@@ -52,17 +52,41 @@ function createToast(content: unknown, options?: ToastOptions): ToastId {
 
   const priority = options?.priority ?? 0;
 
+  // Determine existing state if any, or compute based on limit constraints
+  const existing = registry.store.getState().toasts.get(id);
+  let resolvedState: 'VISIBLE' | 'QUEUED' = 'VISIBLE';
+  let visibleAt: number | null = null;
+
+  if (existing) {
+    resolvedState = existing.state as 'VISIBLE' | 'QUEUED';
+    visibleAt = existing.visibleAt;
+  } else {
+    const limit = containerConfig?.limit ?? defaults.limit;
+    if (limit !== false) {
+      const activeCount = Array.from(registry.store.getState().toasts.values()).filter(
+        (t) =>
+          t.containerId === containerId &&
+          (t.state === 'VISIBLE' || t.state === 'PAUSED' || t.state === 'RESUMED'),
+      ).length;
+
+      if (activeCount >= limit) {
+        resolvedState = 'QUEUED';
+      }
+    }
+    visibleAt = resolvedState === 'VISIBLE' ? Date.now() : null;
+  }
+
   const newToast: CoreToast = {
     id,
     type: options?.type ?? 'info',
     content,
-    state: 'VISIBLE',
+    state: resolvedState,
     position,
     duration,
     containerId,
     priority,
-    createdAt: Date.now(),
-    visibleAt: Date.now(),
+    createdAt: existing ? existing.createdAt : Date.now(),
+    visibleAt,
     remainingTime: duration,
     progressBar,
     closeButton,
@@ -77,7 +101,6 @@ function createToast(content: unknown, options?: ToastOptions): ToastId {
   };
 
   // If there's an existing toast with this ID, update it instead of adding
-  const existing = registry.store.getState().toasts.get(id);
   if (existing) {
     const updatePayload: CoreToastUpdate = {
       ...newToast,

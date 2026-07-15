@@ -219,4 +219,150 @@ describe('Toast Engine & Dispatcher', () => {
     expect(errorToast?.content).toBe('Error: Some error');
     expect(errorToast?.progressBar).toBe(true);
   });
+
+  it('should catch and log errors thrown in onOpen and onClose callbacks', () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    // Try throwing error in onOpen
+    const id = toast('Hello', {
+      onOpen: () => {
+        throw new Error('onOpen crash');
+      },
+      onClose: () => {
+        throw new Error('onClose crash');
+      },
+    });
+
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Error in toast onOpen callback:'), expect.any(Error));
+
+    // Try throwing error in onClose
+    toast.dismiss(id);
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Error in toast onClose callback:'), expect.any(Error));
+
+    consoleSpy.mockRestore();
+  });
+
+  it('should catch and log errors thrown in bootstrap callback', () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const registry = getEngineRegistry();
+    registry.bootstrap = () => {
+      throw new Error('bootstrap crash');
+    };
+
+    toast('Trigger bootstrap error');
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Failed to trigger bootstrap from toast dispatcher:'), expect.any(Error));
+
+    consoleSpy.mockRestore();
+  });
+
+  it('should handle promise resolves and rejects with static string messages', async () => {
+    const promise1 = Promise.resolve('data');
+    const id1 = toast.promise(promise1, {
+      loading: 'Loading...',
+      success: 'Resolved static message',
+      error: 'Error static message',
+    });
+
+    await promise1;
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    const registry = getEngineRegistry();
+    expect(registry.store.getState().toasts.get(id1)?.content).toBe('Resolved static message');
+
+    const promise2 = Promise.reject('some-error');
+    const id2 = toast.promise(promise2, {
+      loading: 'Loading...',
+      success: 'Resolved static message',
+      error: 'Error static message',
+    });
+
+    try {
+      await promise2;
+    } catch {
+      // Ignored
+    }
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(registry.store.getState().toasts.get(id2)?.content).toBe('Error static message');
+  });
+
+  it('should catch and log errors thrown in onClose callbacks during dismissAll', () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    toast('One', {
+      onClose: () => {
+        throw new Error('dismissAll crash');
+      },
+    });
+
+    toast.dismissAll();
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Error in toast onClose callback:'), expect.any(Error));
+
+    consoleSpy.mockRestore();
+  });
+
+  it('should cover fallback branches for nextId and option fields', () => {
+    const registry = getEngineRegistry();
+    // Force nextId to undefined to hit fallback branch (?? 0)
+    registry.nextId = undefined;
+
+    const id = toast('Test', {
+      progressBar: false,
+      closeButton: false,
+      closeOnClick: true,
+      pauseOnHover: false,
+      pauseOnWindowBlur: false,
+    });
+
+    expect(id).toBe(toToastId('toast-1'));
+
+    // Second toast to hit true branches of the option checks
+    toast('Test 2', {
+      progressBar: true,
+      closeButton: true,
+      closeOnClick: false,
+      pauseOnHover: true,
+      pauseOnWindowBlur: true,
+    });
+  });
+
+  it('should support promise function arguments and custom durations in toast.promise()', async () => {
+    const promiseFn = () => Promise.resolve('fn-data');
+    const id = toast.promise(promiseFn, {
+      loading: 'Loading...',
+      success: 'Resolved',
+      error: 'Rejected',
+    }, {
+      successDuration: 1234,
+      errorDuration: 5678,
+    });
+
+    const registry = getEngineRegistry();
+    await promiseFn();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const successToast = registry.store.getState().toasts.get(id);
+    expect(successToast?.content).toBe('Resolved');
+    expect(successToast?.duration).toBe(1234);
+
+    // Reject path with custom error duration
+    const promiseFnReject = () => Promise.reject('err');
+    const id2 = toast.promise(promiseFnReject, {
+      loading: 'Loading...',
+      success: 'Resolved',
+      error: 'Rejected',
+    }, {
+      successDuration: 1234,
+      errorDuration: 5678,
+    });
+
+    try {
+      await promiseFnReject();
+    } catch {
+      // Ignored
+    }
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const errorToast = registry.store.getState().toasts.get(id2);
+    expect(errorToast?.content).toBe('Rejected');
+    expect(errorToast?.duration).toBe(5678);
+  });
 });

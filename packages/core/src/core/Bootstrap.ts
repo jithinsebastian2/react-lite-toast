@@ -1,5 +1,6 @@
 import { ENGINE_SINGLETON_KEY } from '../index';
 import { ObservableStore } from './Store';
+import { setupQueueScheduler } from './Queue';
 
 /**
  * Global registry structure stored on globalThis[ENGINE_SINGLETON_KEY].
@@ -26,12 +27,14 @@ export function getEngineRegistry(): GlobalEngineRegistry {
   };
 
   if (!globalObj[ENGINE_SINGLETON_KEY]) {
+    const store = new ObservableStore();
     globalObj[ENGINE_SINGLETON_KEY] = {
-      store: new ObservableStore(),
+      store,
       mounted: false,
       root: null,
       nextId: 0,
     };
+    setupQueueScheduler(store);
   }
 
   return globalObj[ENGINE_SINGLETON_KEY];
