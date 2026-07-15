@@ -45,6 +45,7 @@ export type {
 
 // ─── Utilities (available from Phase 1) ──────────────────────────────────────
 export { toToastId } from './types/index';
+export { ObservableStore } from './core/Store';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 export { CORE_VERSION } from './types/index';
