@@ -1,0 +1,63 @@
+{
+  "name": "@react-lite-toast/core",
+  "version": "0.1.0",
+  "description": "Framework-agnostic engine for react-lite-toast — zero React dependency",
+  "keywords": [
+    "toast",
+    "notification",
+    "react",
+    "core",
+    "state-machine",
+    "observable"
+  ],
+  "homepage": "https://github.com/jithinsebastian2/react-lite-toast#readme",
+  "bugs": {
+    "url": "https://github.com/jithinsebastian2/react-lite-toast/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jithinsebastian2/react-lite-toast.git",
+    "directory": "packages/core"
+  },
+  "license": "MIT",
+  "author": "jithinsebastian2",
+  "sideEffects": false,
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "vite build && tsc -p tsconfig.build.json --emitDeclarationOnly",
+    "dev": "vite build --watch",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "clean": "rimraf dist coverage .tsbuildinfo"
+  },
+  "devDependencies": {
+    "rimraf": "^6.0.1",
+    "vite": "^5.4.8",
+    "vite-plugin-dts": "^4.2.4",
+    "vitest": "^2.1.1",
+    "@vitest/coverage-v8": "^2.1.1"
+  }
+}

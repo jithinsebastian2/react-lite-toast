@@ -1,0 +1,16 @@
+# Build outputs
+**/dist/**
+**/coverage/**
+**/.turbo/**
+**/storybook-static/**
+
+# Package manager
+**/node_modules/**
+pnpm-lock.yaml
+
+# Generated type definitions (formatted by tsc)
+**/*.d.ts
+
+# Auto-generated
+CHANGELOG.md
+**/CHANGELOG.md

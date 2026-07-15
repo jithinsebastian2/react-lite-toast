@@ -1,0 +1,13 @@
+# pnpm-workspace.yaml
+#
+# Declares the packages that belong to this monorepo.
+# pnpm resolves cross-package dependencies from these directories first,
+# linking local packages via symlinks instead of downloading from npm.
+#
+# Structure:
+#   packages/*  → all publishable library packages
+#   apps/*      → non-published applications (playground, storybook host)
+
+packages:
+  - 'packages/*'
+  - 'apps/*'

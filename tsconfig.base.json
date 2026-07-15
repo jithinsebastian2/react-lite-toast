@@ -1,0 +1,67 @@
+{
+  /**
+   * tsconfig.base.json
+   *
+   * Shared TypeScript configuration extended by every package in the monorepo.
+   *
+   * Design decisions:
+   *
+   * - target: ES2020  — broad browser/Node support while enabling modern syntax
+   *   (optional chaining, nullish coalescing, BigInt, Promise.allSettled, etc.)
+   *
+   * - moduleResolution: Bundler — enables subpath imports and package.json
+   *   exports map resolution. Works correctly with Vite, Rollup, and esbuild.
+   *   Do NOT use "node16" here; it incorrectly requires .js extensions on imports.
+   *
+   * - isolatedModules: true — each file is compiled independently (required for
+   *   Vite/esbuild compatibility). Prevents const enum and namespace re-exports.
+   *
+   * - exactOptionalPropertyTypes: true — distinguishes between `prop?: T` (can
+   *   be omitted) and `prop: T | undefined` (must be present but can be undefined).
+   *   This catches a whole class of bugs that standard strict mode misses.
+   *
+   * - noUncheckedIndexedAccess: true — array index access returns `T | undefined`.
+   *   Forces null-checks on arr[0], preventing "cannot read property of undefined".
+   */
+  "compilerOptions": {
+    /* Language */
+    "target": "ES2020",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "useDefineForClassFields": true,
+
+    /* Modules */
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "resolveJsonModule": true,
+
+    /* JSX */
+    "jsx": "react-jsx",
+
+    /* Emit */
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "noEmit": false,
+
+    /* Interop */
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+
+    /* Type Checking — Strict Baseline */
+    "strict": true,
+
+    /* Type Checking — Additional Safety */
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "noImplicitOverride": true,
+    "exactOptionalPropertyTypes": true,
+    "noUncheckedIndexedAccess": true,
+
+    /* Performance */
+    "skipLibCheck": true
+  }
+}

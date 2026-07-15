@@ -1,0 +1,82 @@
+{
+  "name": "react-lite-toast",
+  "version": "0.1.0",
+  "description": "Zero-config, provider-less React notification library. One import. Zero config. Infinite control.",
+  "keywords": [
+    "toast",
+    "notification",
+    "react",
+    "react18",
+    "react19",
+    "typescript",
+    "accessible",
+    "headless",
+    "zero-config",
+    "provider-less",
+    "ssr"
+  ],
+  "homepage": "https://github.com/jithinsebastian2/react-lite-toast#readme",
+  "bugs": {
+    "url": "https://github.com/jithinsebastian2/react-lite-toast/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jithinsebastian2/react-lite-toast.git",
+    "directory": "packages/react-lite-toast"
+  },
+  "license": "MIT",
+  "author": "jithinsebastian2",
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./styles": "./dist/styles/index.css",
+    "./styles/base": "./dist/styles/base.css",
+    "./styles/animations": "./dist/styles/animations/index.css",
+    "./styles/themes": "./dist/styles/themes/index.css"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite build --watch",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src",
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "@react-lite-toast/core": "workspace:*",
+    "@react-lite-toast/react": "workspace:*"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "rimraf": "^6.0.1",
+    "vite": "^5.4.8",
+    "vite-plugin-dts": "^4.2.4"
+  }
+}

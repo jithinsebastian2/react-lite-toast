@@ -1,0 +1,82 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "ui": "tui",
+  "tasks": {
+    /**
+     * build
+     * `^build` means: run build in all dependency packages FIRST.
+     * e.g. @react-lite-toast/react depends on @react-lite-toast/core,
+     * so core is built before react. Turborepo resolves the DAG automatically.
+     */
+    "build": {
+      "dependsOn": ["^build"],
+      "inputs": [
+        "src/**",
+        "package.json",
+        "tsconfig.json",
+        "vite.config.ts"
+      ],
+      "outputs": ["dist/**"]
+    },
+
+    /**
+     * dev
+     * Watch mode. Runs after upstream packages have been built at least once.
+     * persistent=true keeps the process alive; cache=false disables caching
+     * since watch mode output changes continuously.
+     */
+    "dev": {
+      "dependsOn": ["^build"],
+      "persistent": true,
+      "cache": false
+    },
+
+    /**
+     * typecheck
+     * Runs tsc --noEmit for type validation without emitting output.
+     * Depends on upstream builds so workspace type references resolve correctly.
+     */
+    "typecheck": {
+      "dependsOn": ["^build"],
+      "inputs": ["src/**", "tsconfig.json"]
+    },
+
+    /**
+     * lint
+     * ESLint runs independently per-package; no cross-package dependency needed.
+     */
+    "lint": {
+      "inputs": ["src/**", "eslint.config.mjs", "../../eslint.config.mjs"]
+    },
+
+    /**
+     * test
+     * Depends on upstream builds so import resolution works in tests.
+     */
+    "test": {
+      "dependsOn": ["^build"],
+      "inputs": ["src/**", "tests/**", "vitest.config.ts"],
+      "outputs": ["coverage/**"]
+    },
+
+    "test:watch": {
+      "persistent": true,
+      "cache": false
+    },
+
+    "test:coverage": {
+      "dependsOn": ["^build"],
+      "inputs": ["src/**", "tests/**", "vitest.config.ts"],
+      "outputs": ["coverage/**"]
+    },
+
+    /**
+     * clean
+     * Deletes dist/ and coverage/ directories.
+     * cache=false ensures clean always runs even if inputs haven't changed.
+     */
+    "clean": {
+      "cache": false
+    }
+  }
+}

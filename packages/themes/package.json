@@ -1,0 +1,27 @@
+{
+  "name": "@react-lite-toast/themes",
+  "version": "0.1.0",
+  "description": "Official built-in themes for react-lite-toast",
+  "keywords": ["toast", "notification", "react", "themes", "css", "dark-mode"],
+  "license": "MIT",
+  "sideEffects": ["**/*.css"],
+  "exports": {
+    ".": "./src/index.ts",
+    "./light": "./src/light.css",
+    "./dark": "./src/dark.css",
+    "./colored": "./src/colored.css",
+    "./glass": "./src/glass.css",
+    "./minimal": "./src/minimal.css"
+  },
+  "files": ["dist", "src/*.css", "README.md", "LICENSE"],
+  "scripts": {
+    "build": "echo 'Themes package: CSS only, no build step required'",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src",
+    "clean": "rimraf dist"
+  },
+  "devDependencies": {
+    "rimraf": "^6.0.1",
+    "typescript": "^5.6.2"
+  }
+}
