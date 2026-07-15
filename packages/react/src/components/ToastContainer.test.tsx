@@ -55,13 +55,16 @@ describe('ToastContainer Component', () => {
   it('should support custom container props and update store config', () => {
     const registry = getEngineRegistry();
 
-    const { rerender } = render(
+    const { rerender, unmount } = render(
       <ToastContainer
         id="sidebar"
         position="bottom-left"
         limit={5}
         theme="dark"
         zIndex={100}
+        animation="slide"
+        stackOrder="above"
+        className="test-sidebar"
       />
     );
 
@@ -71,6 +74,9 @@ describe('ToastContainer Component', () => {
     expect(config?.limit).toBe(5);
     expect(config?.theme).toBe('dark');
     expect(config?.zIndex).toBe(100);
+    expect(config?.animation).toBe('slide');
+    expect(config?.stackOrder).toBe('above');
+    expect(config?.className).toBe('test-sidebar');
 
     // Update props
     rerender(
@@ -88,6 +94,10 @@ describe('ToastContainer Component', () => {
     expect(updatedConfig?.limit).toBe(10);
     expect(updatedConfig?.theme).toBe('light');
     expect(updatedConfig?.zIndex).toBe(200);
+
+    // Unmount and verify DOM node cleanup
+    unmount();
+    expect(document.getElementById('react-lite-toast-container-sidebar')).toBeNull();
   });
 
   it('should portal toasts to the body portal container element', () => {

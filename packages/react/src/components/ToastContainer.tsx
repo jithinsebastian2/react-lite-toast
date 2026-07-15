@@ -8,6 +8,7 @@ import type {
   ToastAnimation,
   ToastStackOrder,
 } from '@react-lite-toast/core';
+import { Toast } from './Toast';
 
 export interface ToastContainerProps {
   id?: string;
@@ -123,21 +124,7 @@ export function ToastContainer({
       }}
     >
       {activeToasts.map((toast) => (
-        <div
-          key={toast.id}
-          id={`toast-${toast.id}`}
-          style={{
-            pointerEvents: 'auto',
-            background: 'white',
-            color: 'black',
-            padding: '12px 24px',
-            margin: '8px',
-            borderRadius: '4px',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-          }}
-        >
-          {String(toast.content)}
-        </div>
+        <Toast key={toast.id} toast={toast} />
       ))}
     </div>
   );

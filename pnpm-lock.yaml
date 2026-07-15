@@ -187,6 +187,9 @@ importers:
       '@react-lite-toast/core':
         specifier: workspace:*
         version: link:../core
+      '@react-lite-toast/icons':
+        specifier: workspace:*
+        version: link:../icons
     devDependencies:
       '@testing-library/jest-dom':
         specifier: ^6.5.0

@@ -62,7 +62,8 @@
     "clean": "rimraf dist coverage .tsbuildinfo"
   },
   "dependencies": {
-    "@react-lite-toast/core": "workspace:*"
+    "@react-lite-toast/core": "workspace:*",
+    "@react-lite-toast/icons": "workspace:*"
   },
   "peerDependencies": {
     "react": ">=18.0.0",

@@ -90,3 +90,13 @@ if (isBrowser()) {
   }
 }
 
+// ─── Component Exports (Phase 8) ─────────────────────────────────────────────
+export { ToastContainer } from './components/ToastContainer';
+export { Toast } from './components/Toast';
+export { CloseButton } from './components/CloseButton';
+export { ProgressBar } from './components/ProgressBar';
+export type { ToastContainerProps } from './components/ToastContainer';
+export type { ToastProps } from './components/Toast';
+export type { CloseButtonProps } from './components/CloseButton';
+export type { ProgressBarProps } from './components/ProgressBar';
+

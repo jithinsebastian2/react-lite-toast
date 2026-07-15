@@ -109,7 +109,8 @@ describe('React Bootstrap & Mount', () => {
     // Verify rendered content is in the container DOM
     const toastElement = document.getElementById('toast-test-toast-1');
     expect(toastElement).not.toBeNull();
-    expect(toastElement?.textContent).toBe('Hello, testing mount!');
+    const contentElement = toastElement?.querySelector('.react-lite-toast__content');
+    expect(contentElement?.textContent).toBe('Hello, testing mount!');
   });
 
   it('should return false in unmount() on SSR server environment', () => {
